@@ -7,6 +7,8 @@ import {
   key,
   renderCombinations,
 } from '../regions/combinations';
+import { baseKey } from '../canvas/keys';
+import { isRasterEmpty } from '../canvas/rasters';
 import { useStudio } from '../state/store';
 
 /**
@@ -40,6 +42,15 @@ export function Combinations() {
   );
 
   const allEmpty = thumbs.length > 0 && thumbs.every((t) => t.empty);
+
+  // Parts take their pixels out of the layer. If the layer was empty when the
+  // boundary was drawn, there is nothing behind the versions and the grid looks
+  // broken when it is only reporting an empty design.
+  const nothingOutside = useMemo(
+    () => layers.every((l) => isRasterEmpty(baseKey(l.id))),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [layers, pixelVersion],
+  );
 
   const currentKey = key(currentCombination());
   const shortlisted = new Set(shortlist.map(key));
@@ -75,12 +86,18 @@ export function Combinations() {
             machine, all at one crop so they can be compared. Click one to put it on the canvas,
             star the ones worth keeping.
           </p>
-          {allEmpty && (
+          {allEmpty ? (
             <p className="hint caution">
               Every one of these is empty. Nothing is drawn on the layer or in any version yet —
               draw something in the studio and they will fill in.
             </p>
-          )}
+          ) : nothingOutside ? (
+            <p className="hint caution">
+              Nothing is drawn outside the parts, so each of these is just the part on its own.
+              Draw the rest of the garment in the studio and it will sit behind every version, with
+              only the part changing between them.
+            </p>
+          ) : null}
         </div>
         <div className="parts-actions">
           {shortlist.length > 0 && (
