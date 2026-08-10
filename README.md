@@ -42,7 +42,7 @@ Each part works fully before the next one starts.
 | 4 | Projects & flat export | ✅ done |
 | 5 | Try-on through the YouCam Apparel VTO API (via backend proxy) | ✅ done |
 | 6 | Fabric zones & realistic render | ✅ done |
-| 7 | Combination grid & fitting board | — |
+| 7 | Combination grid & fitting board | ✅ done |
 
 ## Layout
 
