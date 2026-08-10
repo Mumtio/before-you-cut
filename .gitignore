@@ -1,0 +1,15 @@
+node_modules/
+dist/
+*.local
+
+# The API key lives here and nowhere else.
+.env
+.env.*
+!.env.example
+
+# Downloaded try-on and render results — regenerated, and large.
+server/storage/
+
+*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,14 @@
+{
+  "name": "sample-room-server",
+  "private": true,
+  "type": "module",
+  "description": "Holds the YouCam API key and proxies every call. The browser never sees the key.",
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env --watch src/index.js",
+    "start": "node --env-file-if-exists=.env src/index.js",
+    "probe": "node --env-file-if-exists=.env src/probe.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
