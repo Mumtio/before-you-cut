@@ -2029,6 +2029,21 @@ input[type='range']::-moz-range-thumb {
   -webkit-box-orient: vertical;
 }
 
+.combo > button {
+  position: relative;
+}
+
+.combo-empty {
+  position: absolute;
+  inset: auto 0 8px;
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #a9a29a;
+  pointer-events: none;
+}
+
 /* ---------- verdicts ---------- */
 
 .verdict-row {

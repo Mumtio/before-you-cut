@@ -2,7 +2,7 @@ import { CANVAS_H, CANVAS_W } from '../constants';
 import { flatten } from '../canvas/compositor';
 import { ctxOf, makeCanvas } from '../canvas/rasters';
 import { contentBounds } from '../project/exportFlat';
-import type { Combination, LayerMeta, Region } from '../types';
+import type { Combination, LayerMeta, Rect, Region } from '../types';
 
 /** More than this on screen at once is not browsing, it is scrolling. */
 export const MAX_SHOWN = 60;
@@ -38,30 +38,63 @@ export function enumerate(regions: Region[], limit = MAX_SHOWN): Combination[] {
 const THUMB_W = 210;
 const THUMB_H = 300;
 
+export interface Thumb {
+  combination: Combination;
+  key: string;
+  src: string;
+  /** Nothing is drawn in this combination at all. */
+  empty: boolean;
+}
+
 /**
- * One combination as a flat drawing. No API, no network — this is the step
+ * Every combination as a flat drawing. No API, no network — this is the step
  * where most options get eliminated by eye, before anything is spent.
+ *
+ * All of them share one crop, taken from the union of what every combination
+ * draws. Cropping each to its own content would scale them differently, so a
+ * small change would fill the frame and a version that adds nothing would look
+ * blank — which makes them impossible to compare, which is the whole point.
  */
-export function renderCombination(
+export function renderCombinations(
   layers: LayerMeta[],
   regions: Region[],
-  combination: Combination,
-): string {
+  combos: Combination[],
+): Thumb[] {
   const full = makeCanvas(CANVAS_W, CANVAS_H);
-  flatten(layers, regions, full, combination);
+
+  let crop: Rect | null = null;
+  const emptiness: boolean[] = [];
+  for (const c of combos) {
+    flatten(layers, regions, full, c);
+    const box = contentBounds(full);
+    emptiness.push(box === null);
+    if (box) crop = crop ? union(crop, box) : box;
+  }
+  if (!crop) crop = { x: 0, y: 0, w: CANVAS_W, h: CANVAS_H };
 
   const thumb = makeCanvas(THUMB_W, THUMB_H);
   const ctx = ctxOf(thumb);
-  ctx.fillStyle = '#f7f5f2';
-  ctx.fillRect(0, 0, THUMB_W, THUMB_H);
+  const scale = Math.min(THUMB_W / crop.w, THUMB_H / crop.h) * 0.9;
+  const dw = crop.w * scale;
+  const dh = crop.h * scale;
+  const dx = (THUMB_W - dw) / 2;
+  const dy = (THUMB_H - dh) / 2;
 
-  const box = contentBounds(full) ?? { x: 0, y: 0, w: CANVAS_W, h: CANVAS_H };
-  const scale = Math.min(THUMB_W / box.w, THUMB_H / box.h) * 0.9;
-  const dw = box.w * scale;
-  const dh = box.h * scale;
-  ctx.imageSmoothingQuality = 'high';
-  ctx.drawImage(full, box.x, box.y, box.w, box.h, (THUMB_W - dw) / 2, (THUMB_H - dh) / 2, dw, dh);
-  return thumb.toDataURL('image/png');
+  return combos.map((c, i) => {
+    flatten(layers, regions, full, c);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = '#f7f5f2';
+    ctx.fillRect(0, 0, THUMB_W, THUMB_H);
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(full, crop.x, crop.y, crop.w, crop.h, dx, dy, dw, dh);
+    return { combination: c, key: key(c), src: thumb.toDataURL('image/png'), empty: emptiness[i] };
+  });
+}
+
+function union(a: Rect, b: Rect): Rect {
+  const x = Math.min(a.x, b.x);
+  const y = Math.min(a.y, b.y);
+  return { x, y, w: Math.max(a.x + a.w, b.x + b.w) - x, h: Math.max(a.y + a.h, b.y + b.h) - y };
 }
 
 /** A readable description like “collar: Version 2 · hem: Version 1”. */

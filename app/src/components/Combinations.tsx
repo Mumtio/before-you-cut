@@ -5,7 +5,7 @@ import {
   describe,
   enumerate,
   key,
-  renderCombination,
+  renderCombinations,
 } from '../regions/combinations';
 import { useStudio } from '../state/store';
 
@@ -34,10 +34,12 @@ export function Combinations() {
   );
 
   const thumbs = useMemo(
-    () => combos.map((c) => ({ c, k: key(c), src: renderCombination(layers, regions, c) })),
+    () => renderCombinations(layers, regions, combos),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [combos, layers, regions, pixelVersion],
   );
+
+  const allEmpty = thumbs.length > 0 && thumbs.every((t) => t.empty);
 
   const currentKey = key(currentCombination());
   const shortlisted = new Set(shortlist.map(key));
@@ -70,8 +72,15 @@ export function Combinations() {
           </h2>
           <p className="hint">
             {regions.map((r) => `${r.name} ×${r.variants.length}`).join(' · ')} — composited on this
-            machine. Click one to put it on the canvas, star the ones worth keeping.
+            machine, all at one crop so they can be compared. Click one to put it on the canvas,
+            star the ones worth keeping.
           </p>
+          {allEmpty && (
+            <p className="hint caution">
+              Every one of these is empty. Nothing is drawn on the layer or in any version yet —
+              draw something in the studio and they will fill in.
+            </p>
+          )}
         </div>
         <div className="parts-actions">
           {shortlist.length > 0 && (
@@ -91,7 +100,7 @@ export function Combinations() {
       </header>
 
       <div className="combo-grid">
-        {thumbs.map(({ c, k, src }, i) => (
+        {thumbs.map(({ combination: c, key: k, src, empty }, i) => (
           <figure key={k} className={`combo${k === currentKey ? ' current' : ''}`}>
             <button
               type="button"
@@ -102,6 +111,7 @@ export function Combinations() {
               title={describe(regions, c)}
             >
               <img src={src} alt={describe(regions, c)} />
+              {empty && <span className="combo-empty">nothing drawn</span>}
             </button>
             <figcaption>
               <span>{i + 1}</span>
