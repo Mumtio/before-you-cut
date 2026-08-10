@@ -9,6 +9,8 @@ export interface FlatExport {
   dataUrl: string;
   /** Tight box around anything actually drawn — empty when nothing is. */
   content: Rect | null;
+  /** How many pixels are actually drawn on, for judging how complete it is. */
+  drawnPixels: number;
 }
 
 /**
@@ -19,7 +21,21 @@ export interface FlatExport {
 export function exportFlat(layers: LayerMeta[], regions: Region[]): FlatExport {
   const canvas = makeCanvas(CANVAS_W, CANVAS_H);
   flatten(layers, regions, canvas);
-  return { canvas, dataUrl: canvas.toDataURL('image/png'), content: contentBounds(canvas) };
+  const { bounds, opaque } = contentStats(canvas);
+  return { canvas, dataUrl: canvas.toDataURL('image/png'), content: bounds, drawnPixels: opaque };
+}
+
+/**
+ * What share of the figure the drawing actually covers.
+ *
+ * A garment fills most of a body. A stray mark covers almost none of it, and
+ * a render or a try-on given one will invent the rest — worth saying before a
+ * unit is spent finding out.
+ */
+export function figureCoverage(flat: FlatExport, geo: BodyGeometry): number {
+  const frame = figureFrame(geo);
+  const area = Math.max(1, frame.w * frame.h);
+  return flat.drawnPixels / area;
 }
 
 /**
@@ -143,24 +159,33 @@ export function thinDetailRatio(canvas: HTMLCanvasElement, radiusPx = 7): number
 }
 
 export function contentBounds(canvas: HTMLCanvasElement): Rect | null {
+  return contentStats(canvas).bounds;
+}
+
+function contentStats(canvas: HTMLCanvasElement): { bounds: Rect | null; opaque: number } {
   const { width: w, height: h } = canvas;
   const data = ctxOf(canvas).getImageData(0, 0, w, h).data;
   let minX = w;
   let minY = h;
   let maxX = -1;
   let maxY = -1;
+  let opaque = 0;
 
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       if (data[(y * w + x) * 4 + 3] === 0) continue;
+      opaque++;
       if (x < minX) minX = x;
       if (x > maxX) maxX = x;
       if (y < minY) minY = y;
       if (y > maxY) maxY = y;
     }
   }
-  if (maxX < 0) return null;
-  return { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 };
+  if (maxX < 0) return { bounds: null, opaque: 0 };
+  return {
+    bounds: { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 },
+    opaque,
+  };
 }
 
 export function download(dataUrl: string, filename: string) {

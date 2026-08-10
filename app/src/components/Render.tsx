@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { followJob } from '../api/client';
 import { staleZones } from '../fabric/zones';
+import { computeBody } from '../body/model';
+import { exportFlat, figureCoverage } from '../project/exportFlat';
 import { prepareRender } from '../project/renderPrep';
 import { newId, useStudio } from '../state/store';
 import type { RenderResult } from '../types';
@@ -30,6 +32,7 @@ export function Render() {
   const setTryOnSource = useStudio((s) => s.setTryOnSource);
   const currentCombination = useStudio((s) => s.currentCombination);
   const setScreen = useStudio((s) => s.setScreen);
+  const sliders = useStudio((s) => s.sliders);
   const say = useStudio((s) => s.say);
   const pixelVersion = useStudio((s) => s.pixelVersion);
 
@@ -44,6 +47,12 @@ export function Render() {
     () => prepareRender(layers, regions, zones, baseFabricNote),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [layers, regions, zones, baseFabricNote, pixelVersion],
+  );
+
+  const coverage = useMemo(
+    () => figureCoverage(exportFlat(layers, regions), computeBody(sliders)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [layers, regions, pixelVersion, sliders],
   );
 
   const combination = currentCombination();
@@ -102,6 +111,13 @@ export function Render() {
           <div className="garment-preview">
             {prepared ? <img src={prepared.source} alt="Flat garment" /> : <span>Nothing drawn yet</span>}
           </div>
+          {coverage < 0.08 && (
+            <p className="hint caution">
+              This covers about {Math.round(coverage * 100)}% of the figure — too little to read as
+              a garment. The render will invent the rest of it. Draw the garment on the body first;
+              a part on its own is not a design.
+            </p>
+          )}
           <p className="hint">
             The original is always kept. A render can reinterpret the drawing — if it does, the flat
             version is still a valid thing to put on a body, because try-on works on drawings.

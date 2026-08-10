@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { followJob, health, startTryOn, usage as fetchUsage } from '../api/client';
 import type { Usage } from '../api/client';
 import { computeBody } from '../body/model';
-import { downloadText, exportFlat, garmentForApi, safeFilename, thinDetailRatio } from '../project/exportFlat';
+import { downloadText, exportFlat, figureCoverage, garmentForApi, safeFilename, thinDetailRatio } from '../project/exportFlat';
 import type { Framing } from '../project/exportFlat';
 import { newId, useStudio } from '../state/store';
 import type { ModelPhoto } from '../types';
@@ -72,6 +72,7 @@ export function Fitting() {
     () => (flat.content ? thinDetailRatio(flat.canvas) : 0),
     [flat],
   );
+  const coverage = useMemo(() => figureCoverage(flat, geo), [flat, geo]);
 
   const ready = renders.filter((r) => r.status === 'done' && r.realisticImage);
 
@@ -271,6 +272,13 @@ export function Fitting() {
             framings came back the right length in testing — if one comes back wrong, try the other.
           </p>
 
+          {coverage < 0.08 && !chosen && (
+            <p className="hint caution">
+              This covers about {Math.round(coverage * 100)}% of the figure — too little to read as
+              a garment, so the try-on will invent most of what it puts on the model. Draw the
+              garment on the body first.
+            </p>
+          )}
           {thinRatio > 0.4 && !chosen && (
             <p className="hint caution">
               A lot of this design is very thin. Narrow straps, ties and fine piping often do not
