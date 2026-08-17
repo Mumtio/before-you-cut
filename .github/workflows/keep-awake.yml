@@ -17,7 +17,22 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
+      # Judging runs to 4 September 2026. Past that the pinging is pure waste —
+      # of the free instance-hours the service is spending to stay up, and of
+      # Actions minutes. Stopping is the point; extend the date if judging
+      # slips, or run this manually, which ignores the window.
+      - name: Stop after judging
+        id: window
+        if: github.event_name == 'schedule'
+        run: |
+          UNTIL="${{ vars.KEEP_AWAKE_UNTIL || '2026-09-06' }}"
+          if [ "$(date -u +%F)" \> "$UNTIL" ]; then
+            echo "Past $UNTIL — nothing to keep awake for."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Ping the health endpoint
+        if: steps.window.outputs.skip != 'true'
         run: |
           URL="${{ vars.API_HEALTH_URL || 'https://before-you-cut-api.onrender.com/api/health' }}"
           echo "Pinging $URL"

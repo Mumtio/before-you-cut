@@ -37,13 +37,28 @@ To point the workflow at a different API URL, set a repository variable (not a
 secret) named `API_HEALTH_URL` under **Settings → Secrets and variables →
 Actions → Variables**, e.g. `https://your-api.onrender.com/api/health`.
 
-Two things worth knowing about the schedule:
+Things worth knowing about the schedule:
 
 - GitHub runs scheduled workflows late when it is busy — hence the 10-minute
   interval against a 15-minute timeout, rather than cutting it fine.
 - GitHub disables scheduled workflows on a repository with **60 days** of no
   commits. Any push re-enables them, as does **Run workflow** on the Actions
   tab.
+- The workflow **stops pinging after 6 September 2026**, two days past the
+  judging date, so it is not spending instance-hours on nothing afterwards. To
+  move that, set a repository variable `KEEP_AWAKE_UNTIL` to a later `YYYY-MM-DD`.
+  **Run workflow** ignores the window entirely.
+
+### The free-hours budget
+
+Render gives **750 free instance-hours a month, across the whole account**. A
+single service kept awake around the clock uses 744 in a 31-day month. It fits,
+with 6 hours to spare — but only if `before-you-cut-api` is the *only* free web
+service on the account. A second one, even an idle old experiment, exceeds the
+allowance and Render suspends free services for the rest of the billing month.
+
+Before a judging window, delete or suspend every other free web service on the
+account. Static sites do not draw on this budget.
 
 The front end is a static site, so it never sleeps. Even if the API is cold, the
 page itself loads instantly and only a try-on waits.
