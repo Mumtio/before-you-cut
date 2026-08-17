@@ -8,6 +8,9 @@
     "start": "node --env-file-if-exists=.env src/index.js",
     "probe": "node --env-file-if-exists=.env src/probe.js"
   },
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
     "express": "^5.1.0"
   }

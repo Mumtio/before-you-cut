@@ -1,0 +1,28 @@
+# Free hosting sleeps an idle backend, and waking it takes the better part of a
+# minute. Someone opening the site for the first time reads that as broken.
+#
+# This pings the health endpoint often enough that it never gets there. The
+# request that arrives while the service is asleep is the one that wakes it, so
+# a missed run costs nothing beyond one slow ping.
+name: Keep the API awake
+
+on:
+  schedule:
+    # Every 10 minutes. GitHub runs scheduled jobs late under load, which is
+    # why this is well inside Render's 15-minute idle timeout rather than at it.
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping the health endpoint
+        run: |
+          URL="${{ vars.API_HEALTH_URL || 'https://before-you-cut-api.onrender.com/api/health' }}"
+          echo "Pinging $URL"
+          # A cold start can take ~60s, so wait for it rather than calling it a
+          # failure. Retries cover the occasional dropped connection.
+          curl --fail --silent --show-error \
+               --max-time 120 --retry 3 --retry-delay 15 --retry-all-errors \
+               "$URL"

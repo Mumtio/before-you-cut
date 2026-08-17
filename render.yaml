@@ -1,0 +1,39 @@
+# Two free Render services: the API, and the built front end.
+#
+# The front end is a static site, so it never sleeps and the page always loads
+# at once. Only the API can go cold, and it is kept awake by
+# .github/workflows/keep-awake.yml.
+#
+# The browser calls /api/* on its own origin and the rewrite below forwards
+# that to the API — same as the Vite proxy in development, so no build-time URL
+# and no CORS anywhere.
+services:
+  - type: web
+    name: before-you-cut-api
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: server
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      # Set the value in the Render dashboard. It is the one secret here and it
+      # never reaches the browser.
+      - key: YOUCAM_API_KEY
+        sync: false
+
+  - type: web
+    name: before-you-cut
+    runtime: static
+    rootDir: app
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://before-you-cut-api.onrender.com/api/*
+      # Single-page app: every other path is the app itself.
+      - type: rewrite
+        source: /*
+        destination: /index.html
