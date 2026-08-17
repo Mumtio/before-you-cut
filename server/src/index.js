@@ -224,9 +224,15 @@ const zonePrompt = (note) =>
   `Photograph of this exact garment area rendered in real ${note}. Keep the same shape, seams and colour. Realistic fabric texture, drape and lighting.`;
 
 function buildCombinedPrompt(zones, baseFabricNote) {
+  // No masks go with this call, so where each fabric belongs has to be said in
+  // words — a name on its own ("sleeves") leaves the model to guess, and it
+  // guesses wrong. The position comes from the painted mask itself.
   const parts = zones
     .filter((z) => z.fabricNote)
-    .map((z) => `${z.name || 'one area'} in ${z.fabricNote}`);
+    .map((z) => {
+      const what = `${z.name || 'one area'} in ${z.fabricNote}`;
+      return z.where ? `${what}, ${z.where}` : what;
+    });
   const rest = baseFabricNote ? `the rest in ${baseFabricNote}` : '';
   const made = [...parts, rest].filter(Boolean).join('; ');
   return `Turn this flat fashion drawing into a photograph of the real garment, ${made}. Keep the exact shape, proportions, seams and colours of the drawing. Realistic fabric texture, drape and studio lighting, plain background.`.slice(

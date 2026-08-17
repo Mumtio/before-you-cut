@@ -89,6 +89,61 @@ export function maskForApi(key: string, src: { x: number; y: number; w: number; 
   return out.toDataURL('image/png');
 }
 
+/**
+ * Where a zone sits on the garment, in words.
+ *
+ * The combined render sends no masks — only the fabric notes — so the model
+ * decides for itself where "the sleeves" are, and it guesses wrong as often as
+ * not. The painted mask knows exactly where the designer meant; this turns that
+ * into the one thing a prompt can carry. Costs nothing: it is read off a canvas
+ * that is already in memory.
+ */
+export function zoneWhere(key: string, garment: { x: number; y: number; w: number; h: number }): string {
+  const c = getRaster(key);
+  const data = ctxOf(c).getImageData(0, 0, c.width, c.height).data;
+
+  let minX = c.width;
+  let maxX = -1;
+  let minY = c.height;
+  let maxY = -1;
+  for (let y = 0; y < c.height; y++) {
+    for (let x = 0; x < c.width; x++) {
+      if (data[(y * c.width + x) * 4 + 3] <= 8) continue;
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    }
+  }
+  if (maxY < 0) return '';
+
+  // As fractions of the garment itself, so the answer does not change when the
+  // same dress is drawn larger or higher up the canvas.
+  const top = (minY - garment.y) / garment.h;
+  const bottom = (maxY - garment.y) / garment.h;
+  const mid = (top + bottom) / 2;
+
+  const height =
+    mid < 0.12 ? 'at the shoulders and straps'
+    : mid < 0.3 ? 'across the bust and upper bodice'
+    : mid < 0.45 ? 'around the waist'
+    : mid < 0.62 ? 'over the hips'
+    : mid < 0.85 ? 'down the skirt'
+    : 'at the hem';
+
+  // A band spanning most of the garment is not "at" anywhere in particular.
+  if (bottom - top > 0.6) return 'over most of the garment';
+
+  const left = (minX - garment.x) / garment.w;
+  const right = (maxX - garment.x) / garment.w;
+  const side =
+    right < 0.45 ? ', on the left side'
+    : left > 0.55 ? ', on the right side'
+    : '';
+
+  return height + side;
+}
+
 /** Zones painted against a different set of versions than the one showing. */
 export function staleZones(zones: FabricZone[], current: Combination): FabricZone[] {
   return zones.filter((z) => {

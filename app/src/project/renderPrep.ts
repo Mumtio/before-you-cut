@@ -1,5 +1,4 @@
-import { maskForApi } from '../fabric/zones';
-import { zoneKey } from '../fabric/zones';
+import { maskForApi, zoneKey, zoneWhere } from '../fabric/zones';
 import type { FabricZone, LayerMeta, Rect, Region } from '../types';
 import { exportFlat } from './exportFlat';
 
@@ -9,7 +8,7 @@ const RENDER_H = 1024;
 export interface RenderJobInput {
   /** The flat garment on white, the image everything else is aligned to. */
   source: string;
-  zones: { id: string; name: string; mask: string; fabricNote: string }[];
+  zones: { id: string; name: string; mask: string; fabricNote: string; where: string }[];
   baseFabricNote: string;
   /** The crop both the source and every mask were made from. */
   crop: Rect;
@@ -42,6 +41,9 @@ export function prepareRender(
       id: z.id,
       name: z.name,
       fabricNote: z.fabricNote,
+      // The combined call sends no masks, so this is the only way the painted
+      // area reaches the model at all.
+      where: zoneWhere(zoneKey(z.id), crop),
       mask: maskForApi(zoneKey(z.id), crop, RENDER_W, RENDER_H),
     })),
   };
