@@ -205,5 +205,5 @@ export function downloadText(text: string, filename: string, type = 'application
 }
 
 export function safeFilename(name: string): string {
-  return (name.trim() || 'sample-room').replace(/[^a-z0-9\-_ ]/gi, '').replace(/\s+/g, '-').toLowerCase();
+  return (name.trim() || 'before-you-cut').replace(/[^a-z0-9\-_ ]/gi, '').replace(/\s+/g, '-').toLowerCase();
 }

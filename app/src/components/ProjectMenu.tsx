@@ -60,7 +60,7 @@ export function ProjectMenu() {
     try {
       const parsed: unknown = JSON.parse(await file.text());
       if (!isProjectFile(parsed)) {
-        say('That is not a Sample Room project file.');
+        say('That is not a Before You Cut project file.');
         return;
       }
       // A fresh id, so importing never overwrites a project already here.

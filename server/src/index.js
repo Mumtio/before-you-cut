@@ -245,7 +245,7 @@ app.get('/api/jobs/:id', (req, res) => {
 });
 
 app.listen(PORT, async () => {
-  console.log(`Sample Room server on http://localhost:${PORT}`);
+  console.log(`Before You Cut server on http://localhost:${PORT}`);
   if (!hasKey()) {
     console.log('No API key — add YOUCAM_API_KEY to server/.env');
     return;

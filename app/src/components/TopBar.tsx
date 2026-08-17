@@ -32,7 +32,7 @@ export function TopBar() {
       <div className="brand">
         <img className="brand-mark" src="/logo.svg" alt="" width={30} height={30} />
         <div className="brand-text">
-          <h1>Sample Room</h1>
+          <h1>Before You Cut</h1>
           <ProjectMenu />
         </div>
       </div>

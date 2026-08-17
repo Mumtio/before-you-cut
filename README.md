@@ -1,4 +1,4 @@
-# Sample Room
+# Before You Cut
 
 Draw a garment on a body, cut it into swappable parts, render it as real cloth, and see it
 worn by real people.
