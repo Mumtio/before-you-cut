@@ -30,10 +30,6 @@ export function Landing({ onStart }: { onStart: () => void }) {
           <button type="button" className="btn primary big" onClick={onStart}>
             Start designing →
           </button>
-          <p className="landing-note">
-            Nothing to install or sign up for. Drawing, swapping and combining are free and
-            instant — only the last two steps call the API.
-          </p>
         </header>
 
         <ol className="landing-steps">
