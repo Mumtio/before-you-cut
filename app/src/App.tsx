@@ -12,16 +12,20 @@ const ENTERED = 'byc:entered';
 export default function App() {
   const [entered, setEntered] = useState(() => sessionStorage.getItem(ENTERED) === '1');
 
-  // Going back is only ever a look at the front page — the work is untouched,
-  // and Start designing returns to exactly where it was left.
-  if (entered) return <Studio onHome={() => setEntered(false)} />;
-
+  // The studio stays mounted underneath. Unmounting it sent the project
+  // through its loader again on the way back, which repainted the canvas from
+  // the last saved file and quietly threw away anything drawn since.
   return (
-    <Landing
-      onStart={() => {
-        sessionStorage.setItem(ENTERED, '1');
-        setEntered(true);
-      }}
-    />
+    <>
+      <Studio onHome={() => setEntered(false)} />
+      {!entered && (
+        <Landing
+          onStart={() => {
+            sessionStorage.setItem(ENTERED, '1');
+            setEntered(true);
+          }}
+        />
+      )}
+    </>
   );
 }

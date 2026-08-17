@@ -2140,7 +2140,12 @@ input[type='range']::-moz-range-thumb {
 
 /* ---------- landing ---------- */
 
+/* Sits over the studio rather than replacing it, so going back and forth
+   never disturbs the work underneath. */
 .landing {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
   height: 100%;
   overflow: auto;
   display: grid;
