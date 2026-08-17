@@ -1,90 +1,49 @@
 # Sample Room
 
-A tool for garment designers. Draw a dress on a body template, cut it into swappable
-regions, try many versions of each region, assign a real fabric to each part, render the
-whole thing as realistic cloth, then see it worn by real people.
+Draw a garment on a body, cut it into swappable parts, render it as real cloth, and see it
+worn by real people.
 
-Built against [`sample-room-build-spec.md`](sample-room-build-spec.md) for the YouCam API
-Skin AI & Apparel VTO Hackathon.
+**→ [before-you-cut.onrender.com](https://before-you-cut.onrender.com)**
 
-## Run it
+Built for the YouCam API Skin AI & Apparel VTO Hackathon.
 
-Two processes: the front end, and a small backend that holds the API key.
+## What it does
 
-```bash
-# backend — the only place the key exists
-cd server
-cp .env.example .env        # then put your YouCam key in YOUCAM_API_KEY
-npm install
-npm run probe               # checks the key against the live API, spends nothing
-npm start                   # http://localhost:8787
+- **Body** — pick a template and shape it with sliders. Generated on your machine, never
+  sent anywhere, never part of an export.
+- **Draw** — layers, brushes, colour, undo, pan and zoom, mirror mode.
+- **Parts** — draw a boundary around any area, name it, and save what is inside as a
+  version. Save alternatives and switch between them; everything outside stays untouched.
+- **Combinations** — every way the parts can go together, as flat drawings. Free and
+  instant.
+- **Fabrics** — paint an area and say what it is made of: "silk chiffon", "heavy crepe".
+- **Render** — turn the flat drawing into photographic cloth, carrying every fabric note.
+- **Try-on** — put the result on your own model photos through the Apparel VTO API.
 
-# front end
-cd ../app
-npm install
-npm run dev
-```
+Everything up to Render costs nothing and happens instantly. Only the last two steps call
+the API.
 
-Then open the URL Vite prints. `/api` is proxied to the backend, so the browser never
-holds a key. The app opens on **Body** — pick a shape, adjust it, and
-press *Start drawing* to go through to the **Studio**. `Change body` in the studio, or the
-`Body` step in the header, takes you back; the drawing is untouched either way.
+## How to use it
 
-## Build order
+1. **Body** — pick a shape, adjust the sliders, press *Start drawing*.
+2. **Studio** — draw the garment. Use *Parts* to enclose an area and save versions of it.
+3. **Fabrics** — paint over an area and write what it is made of.
+4. **Render** — press *Render* to get the garment back as real cloth. **1 unit.**
+5. **Fitting** — add a model photo and press *Try it on*. **1 unit per person.**
 
-Each part works fully before the next one starts.
+Projects save themselves in the browser. **Export this project** writes a single
+self-contained `.sampleroom.json` holding the drawing, every version, and every mask.
 
-| # | Part | Status |
-|---|------|--------|
-| 1 | Drawing surface — layers, brushes, colour, undo, pan/zoom | ✅ done |
-| 2 | Body setup screen — templates, sliders, guide lines, mirror mode | ✅ done |
-| 3 | Parts & versions — draw a boundary, save versions, swap | ✅ done |
-| 4 | Projects & flat export | ✅ done |
-| 5 | Try-on through the YouCam Apparel VTO API (via backend proxy) | ✅ done |
-| 6 | Fabric zones & realistic render | ✅ done |
-| 7 | Combination grid & fitting board | ✅ done |
-
-## Layout
-
-```
-app/                 front end (Vite + React + TypeScript)
-  src/canvas/        pixel work — rasters, strokes, fill, history, compositing
-  src/body/          the drawing body: silhouette maths and guide lines
-  src/regions/       parts: boundaries, snapping, overlap, versions
-  src/fabric/        fabric zones: painted masks, presets, staleness
-  src/project/       save/load (IndexedDB), file format, flat export
-  src/state/         zustand store (metadata only; bitmaps live outside React)
-  src/components/    UI
-  scripts/           dev helpers that drive the app in a real browser
-server/              backend proxy that holds the API key (added in part 5)
-```
-
-The API key never reaches the browser.
-
-## Dev helpers
-
-With the dev server running:
+## Run it locally
 
 ```bash
-node scripts/shot.mjs out.png     # screenshot the app
-node scripts/smoke.mjs out.png    # draw real strokes through it, then screenshot
-node scripts/parts.mjs pt         # draw a dress, cut a part, save and swap versions
-node scripts/project.mjs pj       # autosave, reload, restore, and check the flat export
-node scripts/pan.mjs              # report whether each way of moving the canvas works
-node scripts/panels.mjs pn        # collapse the panels and screenshot
-node scripts/tryon.mjs to model.jpg   # full run: draw → fitting → worn (spends 1 unit)
-node scripts/fabric.mjs fab --single  # paint two fabric zones, render as cloth (1 unit)
+cd server && npm install && cp .env.example .env   # add your YOUCAM_API_KEY
+npm start                                          # http://localhost:8787
+
+cd ../app && npm install && npm run dev            # open the URL Vite prints
 ```
 
-## What testing settled
+`npm run probe` in `server/` checks the key against the live API without spending a unit.
+The key lives only on the server and never reaches the browser.
 
-§8 leaves the render method open: zone-by-zone masked replacement, or one combined call,
-"if a single combined call turns out to respect the zones well enough in testing".
-
-It does. One `image-to-image` pass carrying every fabric note came back as photographic
-cloth with the crepe bodice and sheer chiffon skirt clearly distinct. One `obj-replace`
-per zone — the approach with more control on paper — inpainted artefacts instead. So the
-single call is the default, at 1 unit however many zones there are; zone-by-zone stays in
-the UI to compare against.
-
-Both drive the copy of Edge already on the machine, so there is no browser download.
+Deployment notes are in [DEPLOY.md](DEPLOY.md).
