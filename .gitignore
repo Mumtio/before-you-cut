@@ -13,3 +13,6 @@ server/storage/
 *.log
 .DS_Store
 Thumbs.db
+
+# Devpost asset, not part of the code.
+thumbnail.png
