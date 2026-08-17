@@ -12,7 +12,9 @@ const ENTERED = 'byc:entered';
 export default function App() {
   const [entered, setEntered] = useState(() => sessionStorage.getItem(ENTERED) === '1');
 
-  if (entered) return <Studio />;
+  // Going back is only ever a look at the front page — the work is untouched,
+  // and Start designing returns to exactly where it was left.
+  if (entered) return <Studio onHome={() => setEntered(false)} />;
 
   return (
     <Landing

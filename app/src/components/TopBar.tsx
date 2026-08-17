@@ -11,7 +11,7 @@ const STEPS: { label: string; screen?: Screen }[] = [
   { label: 'Fitting', screen: 'fitting' },
 ];
 
-export function TopBar() {
+export function TopBar({ onHome }: { onHome: () => void }) {
   const screen = useStudio((s) => s.screen);
   const setScreen = useStudio((s) => s.setScreen);
   const activeLayerId = useStudio((s) => s.activeLayerId);
@@ -30,7 +30,9 @@ export function TopBar() {
   return (
     <header className="topbar">
       <div className="brand">
-        <img className="brand-mark" src="/logo.svg" alt="" width={30} height={30} />
+        <button type="button" className="brand-mark" onClick={onHome} title="Back to the start">
+          <img src="/logo.svg" alt="Before You Cut — back to the start" width={30} height={30} />
+        </button>
         <div className="brand-text">
           <h1>Before You Cut</h1>
           <ProjectMenu />

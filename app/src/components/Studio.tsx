@@ -14,7 +14,7 @@ import { TopBar } from './TopBar';
 import { useProjectStorage } from '../project/useProjectStorage';
 import { useStudio } from '../state/store';
 
-export function Studio() {
+export function Studio({ onHome }: { onHome: () => void }) {
   useHotkeys();
   useProjectStorage();
   const screen = useStudio((s) => s.screen);
@@ -30,7 +30,7 @@ export function Studio() {
 
   return (
     <div className="app">
-      <TopBar />
+      <TopBar onHome={onHome} />
 
       {screen === 'setup' ? (
         <BodySetup />
