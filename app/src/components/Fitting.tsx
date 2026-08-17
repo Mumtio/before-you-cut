@@ -49,7 +49,6 @@ export function Fitting() {
   const renders = useStudio((s) => s.renders);
   const tryOnSourceId = useStudio((s) => s.tryOnSourceId);
   const setTryOnSource = useStudio((s) => s.setTryOnSource);
-  const setVerdict = useStudio((s) => s.setVerdict);
   const zones = useStudio((s) => s.fabricZones);
   const [selected, setSelected] = useState<string[]>([]);
   const [serverReady, setServerReady] = useState<boolean | null>(null);
@@ -383,31 +382,6 @@ export function Fitting() {
                   </figure>
                 </div>
                 {t.error && <p className="result-error">{t.error}</p>}
-
-                {t.status === 'done' && (
-                  <div className="verdict-row">
-                    <button
-                      type="button"
-                      className={`chip${t.verdict === 'works' ? ' yes' : ''}`}
-                      onClick={() => setVerdict(t.id, t.verdict === 'works' ? null : 'works', t.note)}
-                    >
-                      Works
-                    </button>
-                    <button
-                      type="button"
-                      className={`chip${t.verdict === 'no' ? ' no' : ''}`}
-                      onClick={() => setVerdict(t.id, t.verdict === 'no' ? null : 'no', t.note)}
-                    >
-                      Doesn’t
-                    </button>
-                    <input
-                      className="verdict-note"
-                      value={t.note}
-                      placeholder="why — one line"
-                      onChange={(e) => setVerdict(t.id, t.verdict, e.target.value)}
-                    />
-                  </div>
-                )}
 
                 <button type="button" className="btn tiny" onClick={() => removeTryOn(t.id)}>
                   Remove

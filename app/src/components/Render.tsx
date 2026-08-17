@@ -86,7 +86,10 @@ export function Render() {
         patchRender(id, { stage: j.stage, realisticImage: j.resultUrl ?? null }),
       );
       if (final.status === 'failed') {
-        patchRender(id, { status: 'failed', stage: 'failed', error: final.error });
+        // The server already has the API's own words for what went wrong. Losing
+        // them here leaves nothing to act on but "it failed".
+        const why = [final.error, final.detail].filter(Boolean).join(' — ');
+        patchRender(id, { status: 'failed', stage: 'failed', error: why || 'The render failed.' });
         say(final.error ?? 'The render failed.');
       } else {
         patchRender(id, {
