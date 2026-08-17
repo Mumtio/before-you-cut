@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { followJob, health, startTryOn, usage as fetchUsage } from '../api/client';
 import type { Usage } from '../api/client';
 import { computeBody } from '../body/model';
-import { downloadText, exportFlat, figureCoverage, garmentForApi, safeFilename, thinDetailRatio } from '../project/exportFlat';
+import { exportFlat, figureCoverage, garmentForApi, thinDetailRatio } from '../project/exportFlat';
 import type { Framing } from '../project/exportFlat';
 import { newId, useStudio } from '../state/store';
 import type { ModelPhoto } from '../types';
@@ -50,7 +50,6 @@ export function Fitting() {
   const tryOnSourceId = useStudio((s) => s.tryOnSourceId);
   const setTryOnSource = useStudio((s) => s.setTryOnSource);
   const setVerdict = useStudio((s) => s.setVerdict);
-  const projectName = useStudio((s) => s.projectName);
   const zones = useStudio((s) => s.fabricZones);
   const [selected, setSelected] = useState<string[]>([]);
   const [serverReady, setServerReady] = useState<boolean | null>(null);
@@ -158,31 +157,6 @@ export function Fitting() {
       patchTryOn(id, { status: 'failed', stage: 'failed', error: (err as Error).message });
       say((err as Error).message);
     }
-  };
-
-  const judged = tryOns.filter((t) => t.verdict).length;
-
-  /** The short summary of what worked and what did not (spec §9). */
-  const exportSummary = () => {
-    const rows = tryOns
-      .filter((t) => t.verdict)
-      .map((t) => {
-        const who = modelPhotos.find((m) => m.id === t.modelPhotoId)?.name ?? 'unknown';
-        return [
-          new Date(t.createdAt).toISOString().slice(0, 16).replace('T', ' '),
-          who,
-          t.garmentCategory,
-          t.verdict === 'works' ? 'works' : 'does not work',
-          (t.note || '').replace(/"/g, '""'),
-        ];
-      });
-    const csv = [
-      ['when', 'model', 'category', 'verdict', 'note'],
-      ...rows,
-    ]
-      .map((r) => r.map((c) => `"${c}"`).join(','))
-      .join('\r\n');
-    downloadText(csv, `${safeFilename(projectName)}-fittings.csv`, 'text/csv');
   };
 
   const canRun = Boolean(garment) && selected.length > 0 && serverReady === true && !busy;
@@ -379,17 +353,11 @@ export function Fitting() {
       <div className="fitting-right">
         <h2 className="results-title">
           Worn <span>{tryOns.length ? `${tryOns.length} result${tryOns.length > 1 ? 's' : ''}` : ''}</span>
-          {judged > 0 && (
-            <button type="button" className="btn tiny" onClick={exportSummary}>
-              Export the verdicts ({judged})
-            </button>
-          )}
         </h2>
 
         {tryOns.length === 0 && (
           <p className="hint empty-results">
-            Results appear here next to the design that produced them. This does not replace a real
-            fitting — it replaces the guesswork before the first one.
+            Results appear here next to the design that produced them.
           </p>
         )}
 

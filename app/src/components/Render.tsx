@@ -118,10 +118,6 @@ export function Render() {
               a part on its own is not a design.
             </p>
           )}
-          <p className="hint">
-            The original is always kept. A render can reinterpret the drawing — if it does, the flat
-            version is still a valid thing to put on a body, because try-on works on drawings.
-          </p>
         </section>
 
         <section className="panel-card">
@@ -185,9 +181,7 @@ export function Render() {
             {method === 'single' ? (
               <>
                 One pass over the whole garment, carrying every fabric note in a single
-                instruction. In testing this respected the zones and came back as real cloth — and
-                it costs one call however many zones you have. The masks are not sent; the notes and
-                the drawing do the work.
+                instruction.
               </>
             ) : (
               <>

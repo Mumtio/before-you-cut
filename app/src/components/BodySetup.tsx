@@ -18,10 +18,6 @@ export function BodySetup() {
         <header className="setup-head">
           <p className="step">Step one</p>
           <h2>Set up the body</h2>
-          <p className="setup-note">
-            This is the figure you will draw against. It is generated here on your machine and
-            never sent anywhere — move the sliders as much as you like, it costs nothing.
-          </p>
         </header>
 
         <div className="setup-block">
@@ -69,18 +65,10 @@ export function BodySetup() {
         <button type="button" className="btn primary big" onClick={() => setScreen('studio')}>
           Start drawing →
         </button>
-        <p className="setup-foot">
-          You can come back and change the body at any time. Guide lines and body strength are
-          adjustable while you draw.
-        </p>
       </div>
 
       <div className="setup-stage">
         <BodyPreview />
-        <p className="setup-caption">
-          Guide lines sit at shoulder, bust, waist, hip and knee, plus centre front. They move with
-          the sliders and are never part of an export.
-        </p>
       </div>
     </div>
   );

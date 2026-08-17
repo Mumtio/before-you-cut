@@ -102,15 +102,9 @@ function PartsBar() {
           <span className="target-note">everything outside the parts</span>
         </button>
 
-        {mine.length === 0 ? (
-          <p className="parts-empty">
-            Draw a boundary around any area and name it whatever makes sense — “collar”, “left
-            sleeve”, “that bit around the hip”. Whatever is inside becomes its first version, and
-            you can keep saving alternatives and switch between them.
-          </p>
-        ) : (
-          mine.map((r) => <PartCard key={r.id} region={r} />)
-        )}
+        {mine.map((r) => (
+          <PartCard key={r.id} region={r} />
+        ))}
       </div>
 
       <NamePartDialog />

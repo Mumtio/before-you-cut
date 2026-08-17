@@ -1,4 +1,3 @@
-import { TEMPLATES } from '../body/model';
 import { useStudio } from '../state/store';
 
 /**
@@ -7,7 +6,6 @@ import { useStudio } from '../state/store';
  * is set on the setup screen.
  */
 export function BodyPanel() {
-  const templateId = useStudio((s) => s.templateId);
   const setScreen = useStudio((s) => s.setScreen);
   const showBody = useStudio((s) => s.showBody);
   const showGuides = useStudio((s) => s.showGuides);
@@ -17,8 +15,6 @@ export function BodyPanel() {
   const setBodyOpacity = useStudio((s) => s.setBodyOpacity);
   const mirror = useStudio((s) => s.mirror);
   const toggleMirror = useStudio((s) => s.toggleMirror);
-
-  const template = TEMPLATES.find((t) => t.id === templateId);
 
   return (
     <section className="panel">
@@ -33,10 +29,6 @@ export function BodyPanel() {
           Change body
         </button>
       </h2>
-
-      <p className="under-note">
-        <strong>{template?.name ?? 'Custom'}</strong> body — locked, and left out of every export.
-      </p>
 
       <label className="check-row">
         <input type="checkbox" checked={showBody} onChange={toggleBody} />

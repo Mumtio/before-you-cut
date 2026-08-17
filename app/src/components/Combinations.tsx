@@ -61,9 +61,7 @@ export function Combinations() {
         <div>
           <h2>Nothing to combine yet</h2>
           <p className="hint">
-            Cut the design into parts and save a few versions of each. Every way they can go
-            together will show up here as a flat drawing — free, and instant, because none of it
-            touches the API.
+            Cut the design into parts and save a few versions of each.
           </p>
           <button type="button" className="btn primary" onClick={() => setScreen('studio')}>
             Back to the studio
