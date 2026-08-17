@@ -239,10 +239,8 @@ export function Fitting() {
             {framing === 'figure' ? (
               <>Framed to the figure, keeping the garment’s proportions against a body.</>
             ) : (
-              <>Cropped to the drawing itself, the way a product shot is framed.</>
-            )}{' '}
-            This exact image is what gets sent. The body and guide lines are never part of it. Both
-            framings came back the right length in testing — if one comes back wrong, try the other.
+              <>Cropped to the drawing itself.</>
+            )}
           </p>
 
           {coverage < 0.08 && !chosen && (
